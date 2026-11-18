@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mini Google: Old Way vs PageRank</title>
+<style>
+:root{--bg:#fff6ec;--card:#fff;--tx:#1d1d1b;--mut:#6b6b66;--bd:#f0dcc8;--a:#e63946;--b:#06a77d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#16171a;--card:#202226;--tx:#ececea;--mut:#9a9a95;--bd:#34363b;--a:#ff7a6b;--b:#5fd197}}
+:root[data-theme="dark"]{--bg:#16171a;--card:#202226;--tx:#ececea;--mut:#9a9a95;--bd:#34363b;--a:#ff7a6b;--b:#5fd197}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:radial-gradient(circle at 0 0,rgba(255,90,120,.22),transparent 45%),radial-gradient(circle at 100% 0,rgba(40,200,150,.22),transparent 45%),radial-gradient(circle at 50% 100%,rgba(255,200,60,.2),transparent 50%),var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.45}
+main{max-width:980px;margin:0 auto;padding:20px 16px 40px}body{background-repeat:no-repeat;background-attachment:fixed;min-height:100vh}main.home{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;min-height:100dvh;padding-top:0;padding-bottom:6vh;text-align:center;box-sizing:border-box}.home h1{font-size:3.4rem}.home .opt,.home #res{display:none}.home .bar{width:100%;box-sizing:border-box;max-width:600px;margin:0 auto;border-radius:999px;padding:8px 10px;box-shadow:0 2px 14px rgba(66,133,244,.25)}.home input[type=text]{border:0;background:transparent;font-size:1.1rem}.home input[type=text]:focus{outline:none}#go{background:linear-gradient(90deg,#4285f4,#9b59b6);color:#fff;border:0;border-radius:999px;padding:9px 20px;font-size:1rem;cursor:pointer}#res{animation:fi .5s}.home #serp,.serp #res,.serp .opt{display:none}#serp{animation:fi .5s}.sr{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;margin-top:10px}.sr .u{text-decoration:none;color:var(--b)}.sr a.t1{color:#4285f4;font-size:1.15rem;text-decoration:none;display:block;margin:2px 0}.sr a.t1:hover{text-decoration:underline}.sr .sn{color:var(--mut);font-size:.88rem}#cmp{margin-top:16px;background:linear-gradient(90deg,#34a853,#4285f4);color:#fff;border:0;border-radius:999px;padding:11px 22px;font-size:1rem;cursor:pointer}@keyframes fi{from{opacity:0;transform:translateY(12px)}}
+h1{font-size:2rem;margin:0 0 4px;background:linear-gradient(90deg,#4285f4,#ea4335,#fbbc05,#34a853);-webkit-background-clip:text;background-clip:text;color:transparent;display:inline-block}h1 span,h1 b{color:transparent}.chip{color:#fff;border-radius:999px;padding:1px 9px;font-size:.8rem}.old{border-top:5px solid var(--a)!important}.pr{border-top:5px solid var(--b)!important}.wide{border-left:5px solid #4285f4}.wide+.wide{border-left-color:#fbbc05}th{background:rgba(66,133,244,.12)}
+p.sub{color:var(--mut);margin:0 0 16px}
+.bar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px}
+input[type=text]{flex:1;min-width:140px;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font-size:1rem}
+label{font-size:.85rem;color:var(--mut)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+@media(max-width:700px){.cols{grid-template-columns:1fr}}
+.col{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px}
+.col h2{font-size:1.05rem;margin:0 0 2px}.col small{color:var(--mut)}
+.r{border-top:1px solid var(--bd);padding:9px 0;display:grid;grid-template-columns:28px 1fr;gap:8px}
+.n{font-weight:700;color:#fff;background:linear-gradient(135deg,#4285f4,#9b59b6);border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:.8rem}.r:first-child .n{background:linear-gradient(135deg,#fbbc05,#ff7a00)}
+.u{color:var(--b);font-size:.85rem;text-decoration:underline}.go{display:inline-block;color:#fff;text-decoration:none;font-weight:700;border-radius:50%;width:22px;height:22px;line-height:22px;text-align:center;margin-right:2px}.go:hover{outline:2px solid #fbbc05}.t{font-size:.9rem}
+.bg{height:8px;border-radius:4px;background:var(--bd);margin-top:5px;overflow:hidden}
+.bg i{display:block;height:100%}
+.sc{font-size:.78rem;color:var(--mut)}.r,#svg g{cursor:pointer}.r:hover{background:rgba(66,133,244,.1)}#svg g:hover circle{stroke:#fbbc05}
+.old .bg i{background:linear-gradient(90deg,#ff9a44,#e63946)}.pr .bg i{background:linear-gradient(90deg,#34d399,#4285f4)}.bg i{border-radius:4px}
+.tag{display:inline-block;font-size:.7rem;border:1px solid var(--a);color:var(--a);border-radius:6px;padding:0 5px;margin-left:6px}
+.wide{margin-top:14px;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px}
+.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:6px 8px;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}
+.note{font-size:.9rem;margin:8px 0 0}
+</style></head><body><main class="home">
+<h1>Mini <span>G</span>oo<b>g</b>le</h1>
+<div class="bar">
+<input type="text" id="q" placeholder="Search the mini web… try pizza" autocomplete="off"><button id="go">Search</button>
+<label class="opt">Damping <span id="dv">0.85</span> <input type="range" id="d" min="0.5" max="0.95" step="0.05" value="0.85"></label>
+<label class="opt"><input type="checkbox" id="vo" checked> 🔊 Voice on click</label>
+</div>
+<div id="serp"><p class="sub" id="cnt"></p><div id="sr"></div><button id="cmp">⚖️ Compare: old way vs PageRank →</button></div>
+<div id="res"><div class="cols">
+<div class="col old"><h2>Old way: keyword tally</h2><small>Score = times the word appears in the text</small><div id="old"></div></div>
+<div class="col pr"><h2>PageRank</h2><small>Only pages containing the word, ranked by link authority</small><div id="pr"></div></div>
+</div>
+<div class="wide"><b>Link diagram</b> (arrows point to the page being linked to; bigger circle = higher PageRank; faded = does not contain the query word)
+<div class="scroll"><svg id="svg" viewBox="0 0 700 430" style="width:100%;min-width:520px;height:auto;display:block"></svg></div></div>
+<div class="wide"><b>The link graph</b> (who links to whom)
+<div class="scroll"><table id="g"></table></div>
+<p class="note" id="why"></p></div>
+<div class="wide"><b>PageRank iterations</b> (every page starts equal, then shares its score across its outgoing links)
+<div class="scroll"><table id="it"></table></div></div></div>
+<script>
+const CSV=`page,url,text,links_to
+1,pune-food-guide.com,Where to eat in Pune - vada pav and biryani and pizza,2
+2,best-pizza-pune.com,Fresh wood-fired pizza made daily - try our cheese pizza,1;3
+3,college-canteen-blog.com,Student reviews of canteen food and chai and Friday pizza,2;4
+4,pizza-recipes-home.com,Make pizza at home - pizza dough and pizza sauce,2;5
+5,cheap-eats-pune.com,Good food under 100 rupees - misal and dosa and pizza slices,2
+6,pizza-pizza-pizza.com,pizza pizza pizza pizza pizza pizza pizza pizza pizza pizza,1`;
+const pages=CSV.split("\n").slice(1).map(l=>{const p=l.split(",");return{id:+p[0],url:p[1],text:p[2],out:p[3].split(";").map(Number)}});
+const N=pages.length,by=id=>pages.find(p=>p.id===id);
+pages.forEach(p=>p.inb=pages.filter(o=>o.out.includes(p.id)).map(o=>o.id));
+function pagerank(d,iters=30){let r={};pages.forEach(p=>r[p.id]=1/N);const hist=[{...r}];
+for(let i=0;i<iters;i++){const n={};pages.forEach(p=>{let s=0;p.inb.forEach(j=>s+=r[j]/by(j).out.length);n[p.id]=(1-d)/N+d*s});r=n;if(i<4)hist.push({...r})}
+return{r,hist}}
+function count(text,w){if(!w)return 0;return text.toLowerCase().split(/[^a-z0-9]+/).filter(x=>x===w).length}
+const PC=['#4285f4','#ea4335','#f59e0b','#34a853','#9b59b6','#ec4899'];
+function row(rank,p,val,max,label,color,tag){return `<div class="r" data-id="${p.id}"><div class="n">${rank}</div><div><div><b class="chip" style="background:${PC[p.id-1]}">Page ${p.id}</b> <a class="u" href="https://${p.url}" target="_blank" rel="noopener noreferrer">${p.url}</a>${tag||""}</div><div class="t">${p.text}</div><div class="bg"><i style="width:${max?Math.max(2,val/max*100):0}%"></i></div><div class="sc">${label}</div></div></div>`}
+let sel=0;const ch=a=>a.map(i=>`<a href="#" class="go" data-go="${i}" style="background:${PC[i-1]}">${i}</a>`).join(" ")||"nobody";const POS={1:[130,90],2:[350,215],3:[570,90],4:[570,335],5:[350,385],6:[130,335]};
+function draw(r,q){
+const rad=p=>20+r[p.id]*65,pt=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];
+let s='<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#8a8a85"/></marker></defs>';
+pages.forEach(a=>a.out.forEach(id=>{const b=by(id),A=POS[a.id],B=POS[b.id];const dx=B[0]-A[0],dy=B[1]-A[1],L=Math.hypot(dx,dy),nx=-dy/L,ny=dx/L;const C=[(A[0]+B[0])/2+nx*34,(A[1]+B[1])/2+ny*34];
+const d1=Math.hypot(C[0]-A[0],C[1]-A[1]),d2=Math.hypot(B[0]-C[0],B[1]-C[1]);
+const S=[A[0]+(C[0]-A[0])/d1*rad(a),A[1]+(C[1]-A[1])/d1*rad(a)],E=[B[0]-(B[0]-C[0])/d2*(rad(b)+5),B[1]-(B[1]-C[1])/d2*(rad(b)+5)];
+s+=`<path d="M${S[0]},${S[1]} Q${C[0]},${C[1]} ${E[0]},${E[1]}" fill="none" stroke="${PC[a.id-1]}" stroke-width="2.5" stroke-opacity=".8" marker-end="url(#ar)"/>`}));
+pages.forEach(p=>{const [x,y]=POS[p.id],m=count(p.text,q)>0||!q;s+=`<g data-id="${p.id}" opacity="${m?1:.3}"><circle cx="${x}" cy="${y}" r="${rad(p)}" fill="${PC[p.id-1]}" stroke="${p.id===sel?'#fbbc05':'#fff'}" stroke-width="${p.id===sel?6:3}"/><text x="${x}" y="${y+5}" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">${p.id}</text><text x="${x}" y="${y+rad(p)+16}" text-anchor="middle" font-size="12" fill="currentColor">${p.url}</text><text x="${x}" y="${y+rad(p)+30}" text-anchor="middle" font-size="11" fill="#8a8a85">PR ${r[p.id].toFixed(3)} · ${p.inb.length} in</text></g>`});
+document.getElementById("svg").innerHTML=s}
+function render(){
+const q=document.getElementById("q").value.trim().toLowerCase(),d=+document.getElementById("d").value;
+document.getElementById("dv").textContent=d.toFixed(2);
+const {r,hist}=pagerank(d);
+const old=pages.map(p=>({p,c:count(p.text,q)})).filter(x=>x.c>0).sort((a,b)=>b.c-a.c);
+const mo=old.length?old[0].c:0;
+document.getElementById("old").innerHTML=old.length?old.map((x,i)=>row(i+1,x.p,x.c,mo,x.c+" occurrence"+(x.c>1?"s":""),"",x.c>=8?'<span class="tag">keyword stuffing</span>':"")).join(""):"<p>No matches.</p>";
+const pr=pages.filter(p=>count(p.text,q)>0).sort((a,b)=>r[b.id]-r[a.id]);
+const mp=pr.length?r[pr[0].id]:0;
+document.getElementById("pr").innerHTML=pr.length?pr.map((p,i)=>row(i+1,p,r[p.id],mp,"PageRank "+r[p.id].toFixed(3)+" · "+p.inb.length+" inbound link"+(p.inb.length!==1?"s":""))).join(""):"<p>No matches.</p>";
+draw(r,q);serp(pr,r,q);
+document.getElementById("g").innerHTML="<tr><th>Page</th><th>Links to</th><th>Linked from (tally)</th></tr>"+pages.map(p=>`<tr><td>${p.id} · <a class="u" href="https://${p.url}" target="_blank" rel="noopener noreferrer">${p.url}</a></td><td>${ch(p.out)}</td><td>${ch(p.inb)} (${p.inb.length})</td></tr>`).join("");
+const top=[...pages].sort((a,b)=>b.inb.length-a.inb.length)[0];
+document.getElementById("why").textContent="Page "+top.id+" has the highest tally ("+top.inb.length+" inbound links), so it wins under PageRank. Page 6 repeats “pizza” ten times but nobody links to it, so keyword counting loves it while PageRank leaves it last.";
+const rows=["Start","Iter 1","Iter 2","Iter 3","Iter 4"].map((l,i)=>`<tr><td>${l}</td>${pages.map(p=>`<td>${hist[i][p.id].toFixed(3)}</td>`).join("")}</tr>`).join("");
+document.getElementById("it").innerHTML="<tr><th></th>"+pages.map(p=>"<th>Page "+p.id+"</th>").join("")+"</tr>"+rows+`<tr><td><b>Converged</b></td>${pages.map(p=>`<td><b>${r[p.id].toFixed(3)}</b></td>`).join("")}</tr>`}
+const L=a=>a.length>1?a.slice(0,-1).join(", ")+" and "+a[a.length-1]:a.join("");
+function speak(id){
+if(!document.getElementById("vo").checked||!window.speechSynthesis)return;
+const p=by(id),q=document.getElementById("q").value.trim().toLowerCase(),r=pagerank(+document.getElementById("d").value).r;
+const pos=[...pages].sort((a,b)=>r[b.id]-r[a.id]).findIndex(x=>x.id===id)+1;
+let t=`Page ${id}, ${p.url}. `;
+t+=p.inb.length?`It has ${p.inb.length} inbound link${p.inb.length>1?"s":""}, from page${p.inb.length>1?"s":""} ${L(p.inb)}. `:"Nobody links to it. ";
+t+=`It links out to page${p.out.length>1?"s":""} ${L(p.out)}. `;
+if(q)t+=`The word ${q} appears ${count(p.text,q)} time${count(p.text,q)===1?"":"s"} in its text. `;
+t+=`Its PageRank is ${r[id].toFixed(2)}, number ${pos} of ${N}.`;
+if(!p.inb.length)t+=" Repeating a word does not help without links.";
+speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="en-IN";u.rate=.95;speechSynthesis.speak(u)}
+document.addEventListener("click",e=>{if(e.target.closest("a.u"))return;const g=e.target.closest("[data-go]");if(g){e.preventDefault();sel=+g.dataset.go;render();document.getElementById("svg").scrollIntoView({behavior:"smooth",block:"center"});speak(sel);return}const el=e.target.closest("[data-id]");if(el){sel=+el.dataset.id;render();speak(sel)}});
+document.getElementById("vo").addEventListener("change",e=>{if(!e.target.checked&&window.speechSynthesis)speechSynthesis.cancel()});
+function serp(list,r,q){
+document.getElementById("cnt").textContent=list.length?`About ${list.length} result${list.length>1?"s":""} for “${q}”, ranked by PageRank`:`No results for “${q}”`;
+document.getElementById("sr").innerHTML=list.map(p=>`<div class="sr"><div class="u">https://${p.url}</div><a class="t1" href="https://${p.url}" target="_blank" rel="noopener noreferrer">${p.text}</a><div class="sn">Page ${p.id} · ${p.inb.length} page${p.inb.length!==1?"s":""} link${p.inb.length===1?"s":""} here · PageRank ${r[p.id].toFixed(3)}</div></div>`).join("")}
+document.getElementById("cmp").addEventListener("click",()=>{document.querySelector("main").className="";render();document.getElementById("res").scrollIntoView({behavior:"smooth"})});
+function doSearch(){document.querySelector("main").className="serp";render();if(window.speechSynthesis)speechSynthesis.cancel()}
+document.getElementById("go").addEventListener("click",doSearch);
+document.getElementById("q").addEventListener("keydown",e=>{if(e.key==="Enter")doSearch()});
+document.getElementById("q").addEventListener("input",render);document.getElementById("d").addEventListener("input",render);render();
+</script></main></body></html>
